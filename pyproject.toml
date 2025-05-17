@@ -1,0 +1,18 @@
+[project]
+name = "oly-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dotenv>=0.9.9",
+    "google-adk>=0.5.0",
+    "ipykernel>=6.29.5",
+    "litellm>=1.69.3",
+    "loguru>=0.7.3",
+    "openai>=1.75.0",
+]
+
+[tool.uv]
+extra-index-url = ["https://mirrors.aliyun.com/pypi/simple/"]
+python-install-mirror = "https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone"
