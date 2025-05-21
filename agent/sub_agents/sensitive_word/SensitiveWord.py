@@ -4,6 +4,7 @@ from google.adk.tools.agent_tool import AgentTool
 from google.genai.types import GenerateContentConfig
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
+
 # from travel_concierge.sub_agents.booking import prompt
 
 
@@ -23,17 +24,14 @@ qwen_model = LiteLlm(
     model="openai/Qwen/Qwen3-235B-A22B",
     api_base=os.environ.get("OPENAI_API_BASE"),
     api_key=os.environ.get("OPENAI_API_KEY"),
-    extra_body= {
-        "enable_thinking":False,
-        "stream":False
-    },
-    stream=False,  
+    extra_body={"enable_thinking": False, "stream": False},
+    stream=False,
 )
 
 
-sensitive_word = Agent(
-    model="gemini-2.0-flash-001",
+sensitive_word = LlmAgent(
+    model=qwen_model,
     name="sensitive_word",
-    description="""check whether the input contains sensitive words""",
-    instruction=_promopt
+    description="""一个负责敏感词检测的agent""",
+    instruction=_promopt,
 )

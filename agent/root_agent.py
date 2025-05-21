@@ -16,7 +16,7 @@
 
 import os
 from openai import OpenAI
-from google.adk.agents import LlmAgent
+from google.adk.agents import LlmAgent, ParallelAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
 
 # from google.adk.models
@@ -30,9 +30,9 @@ from agent import prompt
 # from travel_concierge.sub_agents.post_trip.agent import post_trip_agent
 # from travel_concierge.sub_agents.pre_trip.agent import pre_trip_agent
 from agent.sub_agents.sensitive_word.SensitiveWord import sensitive_word
-from tools.memory import _load_precreated_itinerary
+from agent.sub_agents.wrong_word.WrongWord import wrong_word
+from google.adk.tools import agent_tool
 
-client = OpenAI()
 
 qwen_model = LiteLlm(
     model="openai/Qwen/Qwen3-235B-A22B",
@@ -42,11 +42,29 @@ qwen_model = LiteLlm(
     stream=False,
 )
 
+
+sub_agents = ParallelAgent(
+    name="ParallelWebResearchAgent",
+    sub_agents=[sensitive_word, wrong_word],
+    description="Runs multiple research agents in parallel to check content.",
+)
+
+sub_agents_tool = agent_tool.AgentTool(
+    agent=sub_agents,
+)
+
 root_agent = LlmAgent(
     model=qwen_model,
     name="root_agent",
     description="一个广告以及文案的内容审核助手",
     instruction=prompt.ROOT_AGENT_INSTR,
-    sub_agents=[sensitive_word],
-    before_agent_callback=_load_precreated_itinerary,
+    tools=[sub_agents_tool],
 )
+
+# seq_sum = SequentialAgent(
+#     model=qwen_model,
+#     name="root_agent",
+#     description="一个广告以及文案的内容审核助手",
+#     instruction="对前面内容审核的内容进行总结",
+#     tools=[sub_agents, wrong_word_agent_tool],
+# )
