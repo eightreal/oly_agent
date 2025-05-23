@@ -2,7 +2,7 @@ from openai import OpenAI
 
 
 def test_message(messgage: str):
-    client = OpenAI()
+    client = OpenAI(api_key="c80d92cf-e029-4240-acd1-dd89b92f5137")
     try:
         client.chat.completions.create(
             model="Qwen/Qwen3-235B-A22B",

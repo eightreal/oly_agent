@@ -16,4 +16,5 @@ dependencies = [
 
 [tool.uv]
 extra-index-url = ["https://mirrors.aliyun.com/pypi/simple/"]
-python-install-mirror = "https://mirror.nju.edu.cn/github-release/indygreg/python-build-standalone"
+python-install-mirror = "https://registry.npmmirror.com/-/binary/python-build-standalone/"
+
