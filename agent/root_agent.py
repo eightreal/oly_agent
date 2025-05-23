@@ -70,10 +70,10 @@ qwen_model = LiteLlm(
     api_base=os.environ.get("OPENAI_API_BASE"),
     api_key=os.environ.get("OPENAI_API_KEY"),
     extra_body={
-        "enable_thinking": False, 
+        "enable_thinking": True, 
         "stream": False,
         "max_tokens": 1000,  # 限制token数量
-        "temperature": 0.7,  # 控制输出的随机性
+        "temperature": 0.6,  # 控制输出的随机性
         "request_timeout": 30,  # 设置超时时间
     },
     stream=False,
