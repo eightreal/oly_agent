@@ -69,8 +69,8 @@ qwen_model = LiteLlm(
     model="openai/Qwen/Qwen3-235B-A22B",
     api_base=os.environ.get("OPENAI_API_BASE"),
     api_key=os.environ.get("OPENAI_API_KEY"),
-    extra_body={"enable_thinking": True, "stream": False},
-    stream=False,
+    extra_body={"enable_thinking": True, "stream": True},
+    stream=True,
 )
 
 emotion_check = LlmAgent(

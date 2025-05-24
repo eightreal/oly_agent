@@ -20,12 +20,21 @@ _promopt = """
     6. 舆论对立敏感词
  如果输入的文案中不包含敏感词，那么请返回"no sensitive word"。
 """
+
+stream_enabled = True
+
+class streamLitllm(LiteLlm):
+    def __init__ (self, model, **kwargs):
+        super().__init__(model, **kwargs)
+        self._additional_args["stream"] = stream_enabled
+        
+
 qwen_model = LiteLlm(
     model="openai/Qwen/Qwen3-235B-A22B",
     api_base=os.environ.get("OPENAI_API_BASE"),
     api_key=os.environ.get("OPENAI_API_KEY"),
-    extra_body={"enable_thinking": True, "stream": False},
-    stream=False,
+    extra_body={"enable_thinking": stream_enabled, "stream": stream_enabled},
+    stream=stream_enabled,
 )
 
 

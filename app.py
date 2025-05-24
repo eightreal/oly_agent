@@ -24,6 +24,8 @@ import tempfile
 from dotenv import load_dotenv
 from google.adk import Runner
 from google.adk.artifacts import InMemoryArtifactService
+from google.adk.runners import RunConfig
+from google.adk.agents.run_config import StreamingMode
 from google.adk.cli.utils import logs
 from google.adk.sessions import InMemorySessionService
 from google.adk.sessions import Session
@@ -56,34 +58,46 @@ runner = Runner(
 )
 user_id_1 = "user"
 
+# litellm._turn_on_debug()
 
-def run_prompt(session: Session, new_message: str):
+run_configs = RunConfig(streaming_mode=StreamingMode.SSE, support_cfc=False)
+
+
+async def run_prompt(session: Session, new_message: str):
     content = types.Content(role="user", parts=[types.Part(text=new_message)])
-    logger.info("** User says:", new_message)
+    print("** User says:", new_message)
 
-    events = runner.run(
+    final_response = ""
+
+    async for event in runner.run_async(
         user_id=user_id_1,
         session_id=session.id,
         new_message=content,
-    )
-    final_response = ""
-    for event in events:
+        run_config=run_configs,
+    ):
+        print(f"** Assistant says:{event}")
         if event.content and event.content.parts:
-            logger.info(f"Potential final response from [{event.author}]: {event.content.parts[0].text}")
-        
-        if event.is_final_response() and event.content and event.content.parts:
-            # logger.info(f"Potential final response from [{event.author}]: {event.content.parts[0].text}")
-            final_response = event.content.parts[0].text
-            break
-    return  gr.ChatMessage(content=final_response, role="assistant")   
+            for part in event.content.parts:
+                print(f"Potential final response from [{event.author}]: {part.text}")
 
+        if event.is_final_response() and event.content and event.content.parts:
+            print(f"len event.content.parts[{len(event.content.parts)}")
+
+            final_response = (
+                f"response from [{event.author}]: {event.content.parts[0].text
+            }"
+                + "\n"
+            )
+            yield gr.ChatMessage(content=final_response, role="assistant")
+
+    # return
 
 
 def demo():
     with gr.Blocks(fill_height=True, fill_width=True) as demo_:
         session_id = str(uuid.uuid1())
         print(session_id)
-        session_11 = session_service.create_session(
+        session_11 = session_service.create_session_sync(
             user_id=user_id_1, session_id=session_id, app_name="content_reviewer"
         )
 
@@ -91,7 +105,7 @@ def demo():
         msg = gr.Textbox()
         clear = gr.ClearButton([msg, chatbot])
 
-        def submit(message, chat_history: List[gr.ChatMessage]):
+        async def submit(message, chat_history: List[gr.ChatMessage]):
             if not message:
                 return "", chat_history
 
@@ -105,14 +119,20 @@ def demo():
                 return "Invalid message, it content apperate content", chat_history
 
             chat_history.append(gr.ChatMessage(content=message, role="user"))
-            response= run_prompt(session=session_11, new_message=message)
-            chat_history.append(response)
+            # response =  asyncio.run()
+            async for item in run_prompt(session=session_11, new_message=message):
+
+                chat_history.append(item)
             return "", chat_history
 
-        msg.submit(submit, [msg, chatbot], [msg, chatbot])
+        def submit_sync(message, chat_history: List[gr.ChatMessage]):
+            return asyncio.run(submit(message, chat_history))
+
+        msg.submit(submit_sync, [msg, chatbot], [msg, chatbot])
         return demo_
 
 
 if __name__ == "__main__":
     demo_ = demo()
     demo_.launch(server_name="0.0.0.0")
+    # run_prompt()

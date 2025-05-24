@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Demonstration of Travel AI Conceirge using Agent Development Kit"""
+
 
 import os
 import time
-from google.adk.agents import Agent, ParallelAgent
+from google.adk.agents import Agent, ParallelAgent, SequentialAgent
 from google.adk.tools.agent_tool import AgentTool
 from google.genai.types import GenerateContentConfig
 from google.adk.agents import LlmAgent
@@ -27,12 +27,7 @@ from litellm.exceptions import RateLimitError
 
 from agent import prompt
 
-# from leader_agent.sub_agents.booking.agent import booking_agent
-# from travel_concierge.sub_agents.in_trip.agent import in_trip_agent
-# from travel_concierge.sub_agents.inspiration.agent import inspiration_agent
-# from travel_concierge.sub_agents.planning.agent import planning_agent
-# from travel_concierge.sub_agents.post_trip.agent import post_trip_agent
-# from travel_concierge.sub_agents.pre_trip.agent import pre_trip_agent
+
 from .sub_agents.sensitive_word.SensitiveWord import sensitive_word
 from .sub_agents.wrong_word.WrongWord import wrong_word
 from .sub_agents.length_check.LengthCheck import length_check
@@ -71,15 +66,16 @@ qwen_model = LiteLlm(
     api_key=os.environ.get("OPENAI_API_KEY"),
     extra_body={
         "enable_thinking": True, 
-        "stream": False,
+        "stream": True,
         "max_tokens": 1000,  # 限制token数量
         "temperature": 0.6,  # 控制输出的随机性
         "request_timeout": 30,  # 设置超时时间
     },
-    stream=False,
+    stream=True,
 )
 
 # 创建一个包含基本子代理的列表
+
 base_agents = [
     sensitive_word,
     wrong_word,
@@ -98,42 +94,27 @@ extended_agents = [
     format_check,
 ]
 
-# 创建基本ParallelAgent
-base_parallel_agent = ParallelAgent(
-    name="base_check_agents",
-    description="并行运行基本内容检查agent",
-    sub_agents=base_agents
+all_agents = base_agents + extended_agents
+
+content_sub_agents = ParallelAgent(
+    name="ParallelContentDetector",
+    sub_agents=all_agents,
+    description="一个用来审核内容是否合规的agent",
 )
 
-# 创建扩展ParallelAgent
-extended_parallel_agent = ParallelAgent(
-    name="extended_check_agents",
-    description="并行运行扩展内容检查agent",
-    sub_agents=extended_agents
-)
 
-# 将ParallelAgent转换为工具
-base_agents_tool = agent_tool.AgentTool(
-    agent=base_parallel_agent,
-)
-
-extended_agents_tool = agent_tool.AgentTool(
-    agent=extended_parallel_agent,
-)
-
-# 创建root_agent，分阶段使用工具
-root_agent = LlmAgent(
+merge = LlmAgent(
     model=qwen_model,
+    name="merge_agent",
+    description="一个总结检测内容的结果助手",
+    instruction=prompt.MERGE_INSTRUCTION,
+)
+
+root_agent = SequentialAgent(
     name="root_agent",
     description="一个广告以及文案的内容审核助手",
-    instruction=prompt.ROOT_AGENT_INSTR,
-    tools=[base_agents_tool, extended_agents_tool]
+    sub_agents=[content_sub_agents, merge]
 )
 
-# seq_sum = SequentialAgent(
-#     model=qwen_model,
-#     name="root_agent",
-#     description="一个广告以及文案的内容审核助手",
-#     instruction="对前面内容审核的内容进行总结",
-#     tools=[sub_agents, wrong_word_agent_tool],
-# )
+
+
