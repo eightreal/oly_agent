@@ -44,7 +44,7 @@ tempfile.tempdir = "logs/"
 
 load_dotenv(override=True)
 
-logger.info(f"openai  api key loaded {os.getenv('OPENAI_API_KEY')}")
+# logger.info(f"openai  api key loaded {os.getenv('OPENAI_API_KEY')}")
 
 app_name = "content_reviewer"
 
@@ -66,6 +66,7 @@ run_configs = RunConfig(streaming_mode=StreamingMode.SSE, support_cfc=False)
 async def run_prompt(session: Session, new_message: str):
     content = types.Content(role="user", parts=[types.Part(text=new_message)])
     print("** User says:", new_message)
+    # logger.infO()
 
     final_response = ""
 
@@ -75,19 +76,20 @@ async def run_prompt(session: Session, new_message: str):
         new_message=content,
         run_config=run_configs,
     ):
-        print(f"** Assistant says:{event}")
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                print(f"Potential final response from [{event.author}]: {part.text}")
+        # print(f"** Assistant says:{event}")
+        # if event.content and event.content.parts:
+        #     for part in event.content.parts:
+        #         print(f"Potential final response from [{event.author}]: {part.text}")
 
-        if event.is_final_response() and event.content and event.content.parts:
+        if (
+            event.is_final_response()
+            and event.content
+            and event.content.parts
+            and event.author == "merge_agent"
+        ):
             print(f"len event.content.parts[{len(event.content.parts)}")
 
-            final_response = (
-                f"response from [{event.author}]: {event.content.parts[0].text
-            }"
-                + "\n"
-            )
+            final_response = f"{event.content.parts[0].text            }" + "\n"
             yield gr.ChatMessage(content=final_response, role="assistant")
 
     # return
