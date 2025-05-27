@@ -24,7 +24,7 @@ stream_enabled = True
 qwen_model = LiteLlm(
     model="openai/Qwen/Qwen3-235B-A22B",
     api_base=os.environ.get("OPENAI_API_BASE"),
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.environ.get("OPENAI_API_KEY_1"),
     extra_body={"enable_thinking": stream_enabled, "stream": stream_enabled},
 )
 

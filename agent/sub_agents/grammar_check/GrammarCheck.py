@@ -64,7 +64,7 @@ _prompt = """
 qwen_model = LiteLlm(
     model="openai/Qwen/Qwen3-235B-A22B",
     api_base=os.environ.get("OPENAI_API_BASE"),
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.environ.get("OPENAI_API_KEY_2"),
     extra_body={"enable_thinking": True, "stream": True},
     stream=True,
 )
