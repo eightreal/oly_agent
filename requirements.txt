@@ -1,0 +1,59 @@
+
+# 基础依赖
+# gradio==4.16.0
+# gradio>=3.40.0
+gradio>=3.40.0,<4.0.0
+python-dotenv==1.0.1
+
+# Google ADK 相关依赖
+google-adk==1.0.0
+google-genai==1.14.0
+# google-genai==0.2.2
+
+google-api-python-client>=2.157.0
+google-cloud-aiplatform>=1.87.0
+google-cloud-secret-manager>=2.22.0
+google-cloud-speech>=2.30.0
+google-cloud-storage>=2.18.0,<3.0.0
+
+
+# LLM 相关
+# litellm==1.30.7
+litellm==1.70.4
+openai>=1.75.0
+
+# 认证和API
+authlib>=1.5.1
+fastapi>=0.115.0
+pydantic>=2.6.0
+uvicorn>=0.14.0
+
+# 工具和日志
+loguru==0.7.2
+asyncio==3.4.3
+uuid==1.30
+graphviz>=0.20.2
+mcp>=1.5.0
+opentelemetry-api>=1.31.0
+opentelemetry-exporter-gcp-trace>=1.9.0
+opentelemetry-sdk>=1.31.0
+sqlalchemy>=1.4.0
+tzlocal>=2.1
+pyyaml>=5.1 
+
+
+# HTTP 和网络
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# 类型提示和数据验证
+typing-extensions>=4.5.0
+# pydantic>=2.6.0
+
+# 开发工具
+black>=24.1.0
+pylint>=3.0.3
+ipykernel>=6.29.5  # Jupyter notebook 支持
+
+# 运行时依赖
+# python-build-standalone>=0.1.0 
