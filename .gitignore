@@ -10,3 +10,12 @@ wheels/
 .venv
 .env
 logs/
+
+# macOS files
+.DS_Store
+
+# IDE files
+.vscode/
+
+# Local configuration
+setup_env.sh
